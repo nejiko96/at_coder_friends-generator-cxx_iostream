@@ -1,4 +1,6 @@
-require "at_coder_friends/generator/cxx_iostream/version"
+# frozen_string_literal: true
+
+require 'at_coder_friends/generator/cxx_iostream/version'
 
 module AtCoderFriends
   module Generator
