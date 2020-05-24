@@ -1,0 +1,74 @@
+// <%= pbm.url %>
+<%
+if pbm.options.interactive
+%>
+#include <bits/stdc++.h>
+using namespace std;
+
+#define DEBUG
+#define REP(i,n)   for(int i=0; i<(int)(n); i++)
+#define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+
+//------------------------------------------------------------------------------
+#ifdef DEBUG
+string source;
+vector<string> responses;
+#endif
+
+string query(string req) {
+  cout << "? " << req << endl;
+  cout << flush;
+#ifdef DEBUG
+  res = "*** generate response from source ***";
+  responses.push_back(res);
+#else
+  cin >> res;
+#endif
+  return res;
+}
+
+//------------------------------------------------------------------------------
+<% gen_consts.each do |const| %><%= const %>
+<% end %>
+int main() {
+<% gen_decl_inputs.each do |dcl_input| %>  <%= dcl_input %>
+<% end %>#ifdef DEBUG
+  cin >> source;
+#endif
+
+  string ans;
+  cout << "! " << ans << endl;
+  cout << flush;
+#ifdef DEBUG
+  cout << "query count: " << responses.size() << endl;
+  cout << "query results:" << endl;
+  for (string res : responses) cout << res << endl;
+#endif
+}
+<%
+else
+%>
+#include <bits/stdc++.h>
+using namespace std;
+
+#define REP(i,n)   for(int i=0; i<(int)(n); i++)
+#define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+
+<% gen_consts.each do |const| %><%= const %>
+<% end %>
+int main() {
+<% gen_decl_inputs.each do |dcl_input| %>  <%= dcl_input %>
+<% end %>
+<%
+if (vs = pbm.options.binary_values)
+%>  bool cond = false;
+  cout << (cond ? "<%= vs[0] %>" : "<%= vs[1] %>") << endl;<%
+else
+%>  int ans = 0;
+  cout << ans << endl;<%
+end
+%>
+}
+<%
+end
+%>

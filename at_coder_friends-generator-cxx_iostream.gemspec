@@ -4,7 +4,7 @@ require_relative 'lib/at_coder_friends/generator/cxx_iostream/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'at_coder_friends-generator-cxx_iostream'
-  spec.version       = AtCoderFriends::Generator::CxxIostream::VERSION
+  spec.version       = AtCoderFriends::Generator::CxxIostreamConstants::VERSION
   spec.authors       = ['nejiko96']
   spec.email         = ['nejiko2006@gmail.com']
 
@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
     'changelog_uri' => spec.homepage + '/blob/master/CHANGELOG.md'
   }
 
-  spec.add_dependency 'at_coder_friends', '~> 0.6.3'
+  spec.add_dependency 'at_coder_friends', '~> 0.6.4'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'rake', '~> 13.0'

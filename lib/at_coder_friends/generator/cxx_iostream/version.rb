@@ -2,7 +2,7 @@
 
 module AtCoderFriends
   module Generator
-    module CxxIostream
+    module CxxIostreamConstants
       VERSION = '0.1.0'
     end
   end
