@@ -1,8 +1,6 @@
 # AtCoderFriends::Generator::CxxIostream
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/at_coder_friends/generator/cxx_iostream`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+C++(iostream) source generator for [AtCoderFriends](https://github.com/nejiko96/at_coder_friends).  
 
 ## Installation
 
@@ -20,9 +18,29 @@ Or install it yourself as:
 
     $ gem install at_coder_friends-generator-cxx_iostream
 
-## Usage
+## Configuration
 
-TODO: Write usage instructions here
+Add ```CxxIostream``` to ```generators``` setting in ```.at_coder_friends.yml```
+
+## Generator Options
+
+Following options are available  
+in ```generator_settings/CxxIostream``` section of ```.at_coder_friends.yml```:
+
+| Option | Description | Default |
+|---------|-------------|---------|
+|default_template|Source template file path|[/templates/cxx_iostream.cxx.erb](/templates/cxx_iostream.cxx.erb)|
+|use_global|if set to true, stores input data in global variables|nil|
+
+## ```.at_coder_friends.yml``` example
+  ```YAML
+  generators:
+    - CxxIoStream
+  generator_settings:
+    CxxIoStream:
+      default_template: /path/to/template
+      use_global: true
+  ```
 
 ## Development
 
