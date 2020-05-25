@@ -48,13 +48,13 @@ module AtCoderFriends
 
       def gen_decl(inpdef, fnc)
         (inpdef.components || [inpdef])
-          .map { |cmp| gen_plain_decl(cmp) }
+          .map { |cmp| gen_plain_decl(inpdef, cmp) }
           .flatten
+          .map { |decl| decl&.format(fnc) }
           .compact
-          .map { |decl| decl.format(fnc) }
       end
 
-      def gen_plain_decl(inpdef)
+      def gen_plain_decl(parent, inpdef)
         case inpdef.container
         when :single
           gen_single_decl(inpdef)
@@ -63,7 +63,7 @@ module AtCoderFriends
         when :varray
           gen_varray_decl(inpdef)
         when :matrix, :vmatrix, :hmatrix
-          gen_matrix_decl(inpdef)
+          gen_matrix_decl(parent, inpdef)
         end
       end
 
@@ -79,7 +79,7 @@ module AtCoderFriends
       end
 
       def gen_harray_decl(inpdef)
-        type, reduce = ITEM_TBL[inpdef.item].values_at(%i[type reduce])
+        type, reduce = ITEM_TBL[inpdef.item].values_at(:type, :reduce)
         name = inpdef.names[0]
         sz = inpdef.size[0]
         if reduce
@@ -97,13 +97,15 @@ module AtCoderFriends
         end
       end
 
-      def gen_matrix_decl(inpdef)
+      def gen_matrix_decl(parent, inpdef)
         sz1, sz2 = inpdef.size
         inpdef.vars.map do |name, item|
-          type, reduce = ITEM_TBL[item].values_at(%i[type reduce])
+          type, reduce = ITEM_TBL[item].values_at(:type, :reduce)
           ctype = reduce ? "vector<#{type}>" : "vector<vector<#{type}>>"
           initializer = (
-            if reduce || sz2.include?('_') # jagged array
+            if reduce
+              "(#{sz1})"
+            elsif parent.container == :varray_matrix # jagged array
               "(#{sz1})"
             else
               "(#{sz1}, vector<#{type}>(#{sz2}))"
@@ -173,24 +175,21 @@ module AtCoderFriends
       }.tap { |h| h.default = h[:varray_matrix] }
 
       def gen_input(inpdef)
-        if inpdef.components
-          gen_cmb_input(inpdef)
-        else
-          gen_plain_input(inpdef)
-        end
+        (inpdef.components ? gen_cmb_input(inpdef) : gen_plain_input(inpdef))
+          .split("\n")
       end
 
       def gen_plain_input(inpdef)
         dim = inpdef.size.size
-        dim -= 1 if ITEM_TBL(inpdef.item)[:reduce]
-        inp_fmt, addr_fmt = INPUT_FMTS[dim]
+        dim -= 1 if ITEM_TBL[inpdef.item][:reduce]
+        inp_fmt, addr_fmt = INPUT_FMTS[dim] || INPUT_FMTS[0]
         sz1, sz2 = inpdef.size
         addr = edit_addr(inpdef, addr_fmt)
         format(inp_fmt, sz1: sz1, sz2: sz2, addr: addr)
       end
 
       def gen_cmb_input(inpdef)
-        dim = ITEM_TBL(inpdef.item)[:reduce] ? 0 : 1
+        dim = ITEM_TBL[inpdef.item][:reduce] ? 0 : 1
         inp_fmt, *addr_fmts = INPUT_FMTS_CMB.dig(inpdef.container, dim)
         sz1, sz2 = inpdef.size
         addr1, addr2 = inpdef.components.zip(addr_fmts).map do |cmp, addr_fmt|
@@ -203,7 +202,7 @@ module AtCoderFriends
           sz2: sz2.split('_')[0],
           addr1: addr1,
           addr2: addr2
-        ).split("\n")
+        )
       end
 
       def edit_addr(inpdef, addr_fmt)
@@ -250,7 +249,7 @@ module AtCoderFriends
       def gen_decl_inputs(inpdefs = pbm.formats)
         inpdefs
           .map do |inpdef|
-            [gen_decl(inpdef, :decl_alloc), gen_input(inpdef)]
+            [gen_decl(inpdef, :decl_alloc). gen_input(inpdef)]
           end
           .flatten
           .compact
