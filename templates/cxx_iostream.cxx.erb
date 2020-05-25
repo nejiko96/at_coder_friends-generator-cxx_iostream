@@ -34,9 +34,15 @@ string query(string req) {
 <% gen_consts.each do |line| -%>
 <%= line %>
 <% end -%>
+<% unless (gd = gen_global_decls).empty? -%>
+
+<% gd.each do |line| -%>
+<%= line %>
+<% end -%>
+<% end -%>
 
 int main() {
-<% gen_decl_alloc_inputs.each do |line| -%>
+<% gen_local_decls.each do |line| -%>
   <%= line %>
 <% end -%>
 <% if pbm.options.interactive -%>

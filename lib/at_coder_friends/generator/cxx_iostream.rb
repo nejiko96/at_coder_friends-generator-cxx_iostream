@@ -254,6 +254,18 @@ module AtCoderFriends
           .flatten
           .compact
       end
+
+      def gen_global_decls(inpdefs = pbm.formats)
+        cfg['use_global'] ? gen_decls(inpdefs) : []
+      end
+
+      def gen_local_decls(inpdefs = pbm.formats)
+        if cfg['use_global']
+          gen_alloc_inputs(inpdefs)
+        else
+          gen_decl_alloc_inputs(inpdefs)
+        end
+      end
     end
   end
 end

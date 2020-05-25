@@ -5,7 +5,8 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
     expect(described_class::VERSION).not_to be nil
   end
 
-  subject(:generator) { described_class.new }
+  subject(:generator) { described_class.new(cfg) }
+  let(:cfg) { nil }
 
   describe '#process' do
     subject { generator.process(pbm) }
@@ -713,6 +714,60 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
     end
   end
 
+  describe '#gen_global_decls' do
+    include_context :common_formats
+    subject { generator.gen_global_decls(formats) }
+
+    context 'in default setting' do
+      it 'generates nothing' do
+        expect(subject).to match([])
+      end
+    end
+
+    context 'when use_global is set to true' do
+      let(:cfg) { { 'use_global' => true } }
+      it 'generates decl code only' do
+        expect(subject).to match(
+          [
+            'int N;',
+            'vector<int> A;'
+          ]
+        )
+      end
+    end
+  end
+
+  describe '#gen_local_decls' do
+    include_context :common_formats
+    subject { generator.gen_local_decls(formats) }
+
+    context 'in default setting' do
+      it 'generates decl, alloc, and input code' do
+        expect(subject).to match(
+          [
+            'int N;',
+            'cin >> N;',
+            'vector<int> A(N);',
+            'REP(i, N) cin >> A[i];'
+          ]
+        )
+      end
+    end
+
+    context 'when use_global is set to true' do
+      let(:cfg) { { 'use_global' => true } }
+      it 'generates alloc and input code' do
+        expect(subject).to match(
+          [
+            'cin >> N;',
+            'A = vector<int>(N);',
+            'REP(i, N) cin >> A[i];'
+          ]
+        )
+      end
+    end
+  end
+
   describe '#generate' do
     subject { generator.generate(pbm) }
     let(:pbm) do
@@ -789,6 +844,49 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
             }
           SRC
         )
+      end
+
+      context 'when use_global is set to true' do
+        let(:cfg) { { 'use_global' => true } }
+
+        it 'generates source' do
+          expect(subject).to eq(
+            <<~SRC
+              // https://atcoder.jp/contests/practice/tasks/practice_1
+
+              #define _GLIBCXX_DEBUG
+              #include <bits/stdc++.h>
+              using namespace std;
+
+              #define REP(i,n)   for(int i=0; i<(int)(n); i++)
+              #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+
+              const int N_MAX = 100000;
+              const int M_MAX = 1e9;
+              const int C_I_MAX = 2*1e5;
+              const int T_I_MAX = 1'000'000;
+              const int MOD = 1e9+7;
+
+              int N, M;
+              vector<int> A;
+              vector<int> B;
+              vector<int> C;
+              vector<int> T;
+
+              int main() {
+                cin >> N >> M;
+                A = vector<int>(M);
+                B = vector<int>(M);
+                C = vector<int>(M);
+                T = vector<int>(M);
+                REP(i, M) cin >> A[i] >> B[i] >> C[i] >> T[i];
+
+                int ans = 0;
+                cout << ans << endl;
+              }
+            SRC
+          )
+        end
       end
     end
 
