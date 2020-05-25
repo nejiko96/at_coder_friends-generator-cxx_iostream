@@ -653,7 +653,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
     end
   end
 
-  shared_context :sample_format do
+  shared_context :common_formats do
     let(:formats) do
       [
         AtCoderFriends::Problem::InputFormat.new(
@@ -672,7 +672,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
   end
 
   describe '#gen_decls' do
-    include_context :sample_format
+    include_context :common_formats
     subject { generator.gen_decls(formats) }
     it 'generates decl code only' do
       expect(subject).to match(
@@ -685,9 +685,9 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
   end
 
   describe '#gen_alloc_inputs' do
-    include_context :sample_format
+    include_context :common_formats
     subject { generator.gen_alloc_inputs(formats) }
-    it 'generates decl code only' do
+    it 'generates alloc and input code' do
       expect(subject).to match(
         [
           'cin >> N;',
@@ -699,9 +699,9 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
   end
 
   describe '#gen_decl_alloc_inputs' do
-    include_context :sample_format
+    include_context :common_formats
     subject { generator.gen_decl_alloc_inputs(formats) }
-    it 'generates decl code only' do
+    it 'generates decl, alloc, and input code' do
       expect(subject).to match(
         [
           'int N;',
@@ -713,244 +713,212 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
     end
   end
 
-  # describe '#generate' do
-  #   subject { generator.generate(pbm) }
-  #   let(:pbm) do
-  #     AtCoderFriends::Problem.new('A') do |pbm|
-  #       pbm.formats_src = formats
-  #       pbm.constants = constants
-  #       pbm.options.interactive = interactive
-  #       pbm.options.binary_values = binary_values
-  #     end
-  #   end
+  describe '#generate' do
+    subject { generator.generate(pbm) }
+    let(:pbm) do
+      AtCoderFriends::Problem.new('A') do |pbm|
+        pbm.formats_src = formats
+        pbm.constants = constants
+        pbm.options.interactive = interactive
+        pbm.options.binary_values = binary_values
+      end
+    end
 
-  #   context 'for a general problem' do
-  #     before do
-  #       allow(pbm).to receive(:url) do
-  #         'https://atcoder.jp/contests/practice/tasks/practice_1'
-  #       end
-  #     end
-  #     let(:formats) do
-  #       [
-  #         AtCoderFriends::Problem::InputFormat.new(
-  #           container: :single,
-  #           names: %w[N M],
-  #           cols: %i[number] * 2
-  #         ),
-  #         AtCoderFriends::Problem::InputFormat.new(
-  #           container: :varray,
-  #           names: %w[A B C T],
-  #           size: %w[M],
-  #           cols: %i[number] * 4
-  #         )
-  #       ]
-  #     end
-  #     let(:constants) do
-  #       [
-  #         AtCoderFriends::Problem::Constant.new('N', :max, '100000'),
-  #         AtCoderFriends::Problem::Constant.new('M', :max, '10^9'),
-  #         AtCoderFriends::Problem::Constant.new('C_i', :max, '2*10^5'),
-  #         AtCoderFriends::Problem::Constant.new('T_i', :max, '1,000,000'),
-  #         AtCoderFriends::Problem::Constant.new(nil, :mod, '10^9+7')
-  #       ]
-  #     end
-  #     let(:interactive) { false }
-  #     let(:binary_values) { nil }
+    context 'for a general problem' do
+      before do
+        allow(pbm).to receive(:url) do
+          'https://atcoder.jp/contests/practice/tasks/practice_1'
+        end
+      end
+      let(:formats) do
+        [
+          AtCoderFriends::Problem::InputFormat.new(
+            container: :single,
+            names: %w[N M],
+            cols: %i[number] * 2
+          ),
+          AtCoderFriends::Problem::InputFormat.new(
+            container: :varray,
+            names: %w[A B C T],
+            size: %w[M],
+            cols: %i[number] * 4
+          )
+        ]
+      end
+      let(:constants) do
+        [
+          AtCoderFriends::Problem::Constant.new('N', :max, '100000'),
+          AtCoderFriends::Problem::Constant.new('M', :max, '10^9'),
+          AtCoderFriends::Problem::Constant.new('C_i', :max, '2*10^5'),
+          AtCoderFriends::Problem::Constant.new('T_i', :max, '1,000,000'),
+          AtCoderFriends::Problem::Constant.new(nil, :mod, '10^9+7')
+        ]
+      end
+      let(:interactive) { false }
+      let(:binary_values) { nil }
 
-  #     it 'generates source' do
-  #       expect(subject).to eq(
-  #         <<~SRC
-  #           // https://atcoder.jp/contests/practice/tasks/practice_1
+      it 'generates source' do
+        expect(subject).to eq(
+          <<~SRC
+            // https://atcoder.jp/contests/practice/tasks/practice_1
 
-  #           #include <cstdio>
+            #define _GLIBCXX_DEBUG
+            #include <bits/stdc++.h>
+            using namespace std;
 
-  #           using namespace std;
+            #define REP(i,n)   for(int i=0; i<(int)(n); i++)
+            #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
 
-  #           #define REP(i,n)   for(int i=0; i<(int)(n); i++)
-  #           #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+            const int N_MAX = 100000;
+            const int M_MAX = 1e9;
+            const int C_I_MAX = 2*1e5;
+            const int T_I_MAX = 1'000'000;
+            const int MOD = 1e9+7;
 
-  #           const int N_MAX = 100000;
-  #           const int M_MAX = 1e9;
-  #           const int C_I_MAX = 2*1e5;
-  #           const int T_I_MAX = 1'000'000;
-  #           const int MOD = 1e9+7;
+            int main() {
+              int N, M;
+              cin >> N >> M;
+              vector<int> A(M);
+              vector<int> B(M);
+              vector<int> C(M);
+              vector<int> T(M);
+              REP(i, M) cin >> A[i] >> B[i] >> C[i] >> T[i];
 
-  #           int N, M;
-  #           int A[M_MAX];
-  #           int B[M_MAX];
-  #           int C[M_MAX];
-  #           int T[M_MAX];
+              int ans = 0;
+              cout << ans << endl;
+            }
+          SRC
+        )
+      end
+    end
 
-  #           void solve() {
-  #             int ans = 0;
-  #             printf("%d\\n", ans);
-  #           }
+    context 'for an interactive problem' do
+      before do
+        allow(pbm).to receive(:url) do
+          'https://atcoder.jp/contests/practice/tasks/practice_2'
+        end
+      end
+      let(:formats) do
+        [
+          AtCoderFriends::Problem::InputFormat.new(
+            container: :single,
+            names: %w[N Q],
+            cols: %i[number] * 2
+          )
+        ]
+      end
+      let(:constants) do
+        [
+          AtCoderFriends::Problem::Constant.new('N', :max, '26'),
+          AtCoderFriends::Problem::Constant.new(nil, :mod, '2^32')
+        ]
+      end
+      let(:interactive) { true }
+      let(:binary_values) { nil }
 
-  #           void input() {
-  #             scanf("%d%d", &N, &M);
-  #             REP(i, M) scanf("%d%d%d%d", A + i, B + i, C + i, T + i);
-  #           }
+      it 'generates source' do
+        expect(subject).to eq(
+          <<~SRC
+            // https://atcoder.jp/contests/practice/tasks/practice_2
 
-  #           int main() {
-  #             input();
-  #             solve();
-  #             return 0;
-  #           }
-  #         SRC
-  #       )
-  #     end
-  #   end
+            #define _GLIBCXX_DEBUG
+            #include <bits/stdc++.h>
+            using namespace std;
 
-  #   context 'for an interactive problem' do
-  #     before do
-  #       allow(pbm).to receive(:url) do
-  #         'https://atcoder.jp/contests/practice/tasks/practice_2'
-  #       end
-  #     end
-  #     let(:formats) do
-  #       [
-  #         AtCoderFriends::Problem::InputFormat.new(
-  #           container: :single,
-  #           names: %w[N Q],
-  #           cols: %i[number] * 2
-  #         )
-  #       ]
-  #     end
-  #     let(:constants) do
-  #       [
-  #         AtCoderFriends::Problem::Constant.new('N', :max, '26'),
-  #         AtCoderFriends::Problem::Constant.new(nil, :mod, '2^32')
-  #       ]
-  #     end
-  #     let(:interactive) { true }
-  #     let(:binary_values) { nil }
+            #define DEBUG
+            #define REP(i,n)   for(int i=0; i<(int)(n); i++)
+            #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
 
-  #     it 'generates source' do
-  #       expect(subject).to eq(
-  #         <<~SRC
-  #           // https://atcoder.jp/contests/practice/tasks/practice_2
+            //------------------------------------------------------------------------------
+            #ifdef DEBUG
+            string source;
+            vector<string> responses;
+            #endif
 
-  #           #include <cstdio>
-  #           #include <vector>
-  #           #include <string>
+            string query(string req) {
+              cout << "? " << req << endl;
+              cout << flush;
+            #ifdef DEBUG
+              res = "*** generate response from source ***";
+              responses.push_back(res);
+            #else
+              cin >> res;
+            #endif
+              return res;
+            }
 
-  #           using namespace std;
+            //------------------------------------------------------------------------------
+            const int N_MAX = 26;
+            const int MOD = 1<<32;
 
-  #           #define DEBUG
-  #           #define REP(i,n)   for(int i=0; i<(int)(n); i++)
-  #           #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+            int main() {
+              int N, Q;
+              cin >> N >> Q;
+            #ifdef DEBUG
+              cin >> source;
+            #endif
 
-  #           //------------------------------------------------------------------------------
-  #           const int BUFSIZE = 1024;
-  #           char req[BUFSIZE];
-  #           char res[BUFSIZE];
-  #           #ifdef DEBUG
-  #           char source[BUFSIZE];
-  #           vector<string> responses;
-  #           #endif
+              string ans;
+              cout << "! " << ans << endl;
+              cout << flush;
+            #ifdef DEBUG
+              cout << "query count: " << responses.size() << endl;
+              cout << "query results:" << endl;
+              for (string res : responses) cout << res << endl;
+            #endif
+            }
+          SRC
+        )
+      end
+    end
 
-  #           void query() {
-  #             printf("? %s\\n", req);
-  #             fflush(stdout);
-  #           #ifdef DEBUG
-  #             sprintf(res, "generate response from source");
-  #             responses.push_back(res);
-  #           #else
-  #             scanf("%s", res);
-  #           #endif
-  #           }
+    context 'for a binary problem' do
+      before do
+        allow(pbm).to receive(:url) do
+          'https://atcoder.jp/contests/abc006/tasks/abc006_1'
+        end
+      end
+      let(:formats) do
+        [
+          AtCoderFriends::Problem::InputFormat.new(
+            container: :single,
+            names: %w[N],
+            cols: %i[number]
+          )
+        ]
+      end
+      let(:constants) do
+        [
+          AtCoderFriends::Problem::Constant.new('N', :max, '9')
+        ]
+      end
+      let(:interactive) { false }
+      let(:binary_values) { %w[YES NO] }
 
-  #           //------------------------------------------------------------------------------
-  #           const int N_MAX = 26;
-  #           const int MOD = 1<<32;
+      it 'generates source' do
+        expect(subject).to eq(
+          <<~SRC
+            // https://atcoder.jp/contests/abc006/tasks/abc006_1
 
-  #           int N, Q;
+            #define _GLIBCXX_DEBUG
+            #include <bits/stdc++.h>
+            using namespace std;
 
-  #           void solve() {
-  #             printf("! %s\\n", ans);
-  #             fflush(stdout);
-  #           #ifdef DEBUG
-  #             printf("query count: %d\\n", responses.size());
-  #             puts("query results:");
-  #             REP(i, responses.size()) {
-  #               puts(responses[i].c_str());
-  #             }
-  #           #endif
-  #           }
+            #define REP(i,n)   for(int i=0; i<(int)(n); i++)
+            #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
 
-  #           void input() {
-  #             scanf("%d%d", &N, &Q);
-  #           #ifdef DEBUG
-  #             scanf("%s", source);
-  #           #endif
-  #           }
+            const int N_MAX = 9;
 
-  #           int main() {
-  #             input();
-  #             solve();
-  #             return 0;
-  #           }
-  #         SRC
-  #       )
-  #     end
-  #   end
+            int main() {
+              int N;
+              cin >> N;
 
-  #   context 'for a binary problem' do
-  #     before do
-  #       allow(pbm).to receive(:url) do
-  #         'https://atcoder.jp/contests/abc006/tasks/abc006_1'
-  #       end
-  #     end
-  #     let(:formats) do
-  #       [
-  #         AtCoderFriends::Problem::InputFormat.new(
-  #           container: :single,
-  #           names: %w[N],
-  #           cols: %i[number]
-  #         )
-  #       ]
-  #     end
-  #     let(:constants) do
-  #       [
-  #         AtCoderFriends::Problem::Constant.new('N', :max, '9')
-  #       ]
-  #     end
-  #     let(:interactive) { false }
-  #     let(:binary_values) { %w[YES NO] }
-
-  #     it 'generates source' do
-  #       expect(subject).to eq(
-  #         <<~SRC
-  #           // https://atcoder.jp/contests/abc006/tasks/abc006_1
-
-  #           #include <cstdio>
-
-  #           using namespace std;
-
-  #           #define REP(i,n)   for(int i=0; i<(int)(n); i++)
-  #           #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
-
-  #           const int N_MAX = 9;
-
-  #           int N;
-
-  #           void solve() {
-  #             bool cond = false;
-  #             puts(cond ? "YES" : "NO");
-  #           }
-
-  #           void input() {
-  #             scanf("%d", &N);
-  #           }
-
-  #           int main() {
-  #             input();
-  #             solve();
-  #             return 0;
-  #           }
-  #         SRC
-  #       )
-  #     end
-  #   end
-  # end
+              bool cond = false;
+              cout << (cond ? "YES" : "NO") << endl;
+            }
+          SRC
+        )
+      end
+    end
+  end
 end
