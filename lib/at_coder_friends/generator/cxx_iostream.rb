@@ -237,7 +237,7 @@ module AtCoderFriends
           .compact
       end
 
-      def gen_inputs(inpdefs = pbm.formats)
+      def gen_alloc_inputs(inpdefs = pbm.formats)
         inpdefs
           .map do |inpdef|
             [gen_decl(inpdef, :alloc), gen_input(inpdef)]
@@ -246,10 +246,10 @@ module AtCoderFriends
           .compact
       end
 
-      def gen_decl_inputs(inpdefs = pbm.formats)
+      def gen_decl_alloc_inputs(inpdefs = pbm.formats)
         inpdefs
           .map do |inpdef|
-            [gen_decl(inpdef, :decl_alloc). gen_input(inpdef)]
+            [gen_decl(inpdef, :decl_alloc), gen_input(inpdef)]
           end
           .flatten
           .compact

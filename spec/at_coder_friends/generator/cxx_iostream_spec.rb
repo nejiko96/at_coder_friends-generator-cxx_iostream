@@ -274,7 +274,9 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] }
       let(:size) { %w[8 8] }
       it 'generates decl' do
-        expect(subject).to match(['vector<vector<int>> A(8, vector<int>(8));'])
+        expect(subject).to match(
+          ['vector<vector<int>> A(8, vector<int>(8));']
+        )
       end
     end
 
@@ -648,6 +650,66 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
           ['REP(i, Q) REP(j, 2) cin >> x[i][j] >> y[i][j];']
         )
       end
+    end
+  end
+
+  shared_context :sample_format do
+    let(:formats) do
+      [
+        AtCoderFriends::Problem::InputFormat.new(
+          container: :single,
+          names: %w[N],
+          cols: %i[number]
+        ),
+        AtCoderFriends::Problem::InputFormat.new(
+          container: :harray,
+          names: %w[A],
+          size: %w[N],
+          cols: %i[number] * 4
+        )
+      ]
+    end
+  end
+
+  describe '#gen_decls' do
+    include_context :sample_format
+    subject { generator.gen_decls(formats) }
+    it 'generates decl code only' do
+      expect(subject).to match(
+        [
+          'int N;',
+          'vector<int> A;'
+        ]
+      )
+    end
+  end
+
+  describe '#gen_alloc_inputs' do
+    include_context :sample_format
+    subject { generator.gen_alloc_inputs(formats) }
+    it 'generates decl code only' do
+      expect(subject).to match(
+        [
+          'cin >> N;',
+          'A = vector<int>(N);',
+          'REP(i, N) cin >> A[i];'
+        ]
+      )
+    end
+  end
+
+  describe '#gen_decl_alloc_inputs' do
+    include_context :sample_format
+    subject { generator.gen_decl_alloc_inputs(formats) }
+    it 'generates decl code only' do
+      expect(subject).to match(
+        [
+          'int N;',
+          'cin >> N;',
+          'vector<int> A(N);',
+          'REP(i, N) cin >> A[i];'
+        ]
+      )
     end
   end
 

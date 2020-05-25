@@ -1,14 +1,16 @@
 // <%= pbm.url %>
-<%
-if pbm.options.interactive
-%>
+
+#define _GLIBCXX_DEBUG
 #include <bits/stdc++.h>
 using namespace std;
 
+<% if pbm.options.interactive -%>
 #define DEBUG
+<% end -%>
 #define REP(i,n)   for(int i=0; i<(int)(n); i++)
 #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
 
+<% if pbm.options.interactive -%>
 //------------------------------------------------------------------------------
 #ifdef DEBUG
 string source;
@@ -26,16 +28,23 @@ string query(string req) {
 #endif
   return res;
 }
-
 //------------------------------------------------------------------------------
-<% gen_consts.each do |const| %><%= const %>
-<% end %>
+<% end -%>
+<% gen_consts.each do |line| -%>
+<%= line %>
+<% end -%>
+
 int main() {
-<% gen_decl_inputs.each do |dcl_input| %>  <%= dcl_input %>
-<% end %>#ifdef DEBUG
+<% gen_decl_alloc_inputs.each do |line| -%>
+  <%= line %>
+<% end -%>
+<% if pbm.options.interactive -%>
+#ifdef DEBUG
   cin >> source;
 #endif
+<% end -%>
 
+<% if pbm.options.interactive -%>
   string ans;
   cout << "! " << ans << endl;
   cout << flush;
@@ -44,31 +53,11 @@ int main() {
   cout << "query results:" << endl;
   for (string res : responses) cout << res << endl;
 #endif
+<% elsif (vs = pbm.options.binary_values) -%>
+  bool cond = false;
+  cout << (cond ? "<%= vs[0] %>" : "<%= vs[1] %>") << endl;
+<% else -%>
+  int ans = 0;
+  cout << ans << endl;
+<% end -%>
 }
-<%
-else
-%>
-#include <bits/stdc++.h>
-using namespace std;
-
-#define REP(i,n)   for(int i=0; i<(int)(n); i++)
-#define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
-
-<% gen_consts.each do |const| %><%= const %>
-<% end %>
-int main() {
-<% gen_decl_inputs.each do |dcl_input| %>  <%= dcl_input %>
-<% end %>
-<%
-if (vs = pbm.options.binary_values)
-%>  bool cond = false;
-  cout << (cond ? "<%= vs[0] %>" : "<%= vs[1] %>") << endl;<%
-else
-%>  int ans = 0;
-  cout << ans << endl;<%
-end
-%>
-}
-<%
-end
-%>
