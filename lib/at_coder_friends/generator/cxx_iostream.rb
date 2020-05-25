@@ -47,8 +47,11 @@ module AtCoderFriends
       end
 
       def gen_decl(inpdef, fnc)
-        (inpdef.components || [inpdef])
+        decls =
+          (inpdef.components || [inpdef])
           .map { |cmp| gen_plain_decl(inpdef, cmp) }
+        decls
+          .push(get_delim_decl(inpdef))
           .flatten
           .map { |decl| decl&.format(fnc) }
           .compact
@@ -113,6 +116,12 @@ module AtCoderFriends
           )
           CxxDecl.new(ctype, name, initializer)
         end
+      end
+
+      def get_delim_decl(inpdef)
+        return nil if inpdef.delim.empty?
+
+        CxxDecl.new('char',  'delim', nil)
       end
     end
 
@@ -206,7 +215,8 @@ module AtCoderFriends
       end
 
       def edit_addr(inpdef, addr_fmt)
-        inpdef.names.map { |v| format(addr_fmt, v: v) }.join(' >> ')
+        sep = inpdef.delim.empty? ? ' >> ' : ' >> delim >> '
+        inpdef.names.map { |v| format(addr_fmt, v: v) }.join(sep)
       end
     end
 
@@ -230,41 +240,20 @@ module AtCoderFriends
         constants.map { |c| gen_const(c) }
       end
 
-      def gen_decls(inpdefs = pbm.formats)
-        inpdefs
-          .map { |inpdef| gen_decl(inpdef, :decl) }
-          .flatten
-          .compact
-      end
-
-      def gen_alloc_inputs(inpdefs = pbm.formats)
-        inpdefs
-          .map do |inpdef|
-            [gen_decl(inpdef, :alloc), gen_input(inpdef)]
-          end
-          .flatten
-          .compact
-      end
-
-      def gen_decl_alloc_inputs(inpdefs = pbm.formats)
-        inpdefs
-          .map do |inpdef|
-            [gen_decl(inpdef, :decl_alloc), gen_input(inpdef)]
-          end
-          .flatten
-          .compact
-      end
-
       def gen_global_decls(inpdefs = pbm.formats)
-        cfg['use_global'] ? gen_decls(inpdefs) : []
+        fnc = cfg['use_global'] ? :decl : nil
+        inpdefs
+          .map { |inpdef| fnc && gen_decl(inpdef, fnc) || [] }
+          .flatten
+          .compact
       end
 
       def gen_local_decls(inpdefs = pbm.formats)
-        if cfg['use_global']
-          gen_alloc_inputs(inpdefs)
-        else
-          gen_decl_alloc_inputs(inpdefs)
-        end
+        fnc = cfg['use_global'] ? :alloc : :decl_alloc
+        inpdefs
+          .map { |inpdef| [gen_decl(inpdef, fnc), gen_input(inpdef)] }
+          .flatten
+          .compact
       end
     end
   end

@@ -50,7 +50,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
         item: item,
         names: names,
         size: size,
-        delim: '',
+        delim: delim,
         cols: cols
       )
     end
@@ -58,6 +58,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
     let(:item) { nil }
     let(:size) { [] }
     let(:names) { %w[A] }
+    let(:delim) { '' }
     let(:cols) { [] }
 
     context 'for a plain number' do
@@ -403,6 +404,23 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
         )
       end
     end
+
+    context 'for format with delimiters' do
+      let(:container) { :varray }
+      let(:item) { :number }
+      let(:names) { %w[S E] }
+      let(:size) { %w[N] }
+      let(:delim) { '-' }
+      it 'generates decl' do
+        expect(subject).to match(
+          [
+            'vector<int> S(N);',
+            'vector<int> E(N);',
+            'char delim;'
+          ]
+        )
+      end
+    end
   end
 
   describe '#gen_input' do
@@ -413,13 +431,14 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
         item: item,
         names: names,
         size: size,
-        delim: '',
+        delim: delim,
         cols: cols
       )
     end
     let(:item) { nil }
     let(:size) { [] }
     let(:names) { %w[A] }
+    let(:delim) { '' }
     let(:cols) { [] }
 
     context 'for a plain number' do
@@ -652,6 +671,21 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
         )
       end
     end
+
+    context 'for format with delimiters' do
+      let(:container) { :varray }
+      let(:item) { :number }
+      let(:names) { %w[S E] }
+      let(:size) { %w[N] }
+      let(:delim) { '-' }
+      it 'generates input code' do
+        expect(subject).to match(
+          [
+            'REP(i, N) cin >> S[i] >> delim >> E[i];'
+          ]
+        )
+      end
+    end
   end
 
   shared_context :common_formats do
@@ -669,48 +703,6 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
           cols: %i[number] * 4
         )
       ]
-    end
-  end
-
-  describe '#gen_decls' do
-    include_context :common_formats
-    subject { generator.gen_decls(formats) }
-    it 'generates decl code only' do
-      expect(subject).to match(
-        [
-          'int N;',
-          'vector<int> A;'
-        ]
-      )
-    end
-  end
-
-  describe '#gen_alloc_inputs' do
-    include_context :common_formats
-    subject { generator.gen_alloc_inputs(formats) }
-    it 'generates alloc and input code' do
-      expect(subject).to match(
-        [
-          'cin >> N;',
-          'A = vector<int>(N);',
-          'REP(i, N) cin >> A[i];'
-        ]
-      )
-    end
-  end
-
-  describe '#gen_decl_alloc_inputs' do
-    include_context :common_formats
-    subject { generator.gen_decl_alloc_inputs(formats) }
-    it 'generates decl, alloc, and input code' do
-      expect(subject).to match(
-        [
-          'int N;',
-          'cin >> N;',
-          'vector<int> A(N);',
-          'REP(i, N) cin >> A[i];'
-        ]
-      )
     end
   end
 
