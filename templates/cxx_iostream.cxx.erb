@@ -19,7 +19,7 @@ vector<string> responses;
 
 string query(string req) {
   cout << "? " << req << endl;
-  cout << flush;
+  string res;
 #ifdef DEBUG
   res = "*** generate response from source ***";
   responses.push_back(res);
@@ -31,16 +31,18 @@ string query(string req) {
 
 //------------------------------------------------------------------------------
 <% end -%>
-<% gen_consts.each do |line| -%>
-<%= line %>
-<% end -%>
-<% unless (gd = gen_global_decls).empty? -%>
-
-<% end -%>
-<% gd.each do |line| -%>
+<% unless (consts = gen_consts).empty?  -%>
+<% consts.each do |line| -%>
 <%= line %>
 <% end -%>
 
+<% end -%>
+<% unless (global_decls = gen_global_decls).empty? -%>
+<% global_decls.each do |line| -%>
+<%= line %>
+<% end -%>
+
+<% end -%>
 int main() {
 <% gen_local_decls.each do |line| -%>
   <%= line %>
@@ -54,7 +56,6 @@ int main() {
 <% if pbm.options.interactive -%>
   string ans;
   cout << "! " << ans << endl;
-  cout << flush;
 #ifdef DEBUG
   cout << "query count: " << responses.size() << endl;
   cout << "query results:" << endl;

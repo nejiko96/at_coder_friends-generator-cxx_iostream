@@ -927,7 +927,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
 
             string query(string req) {
               cout << "? " << req << endl;
-              cout << flush;
+              string res;
             #ifdef DEBUG
               res = "*** generate response from source ***";
               responses.push_back(res);
@@ -950,7 +950,6 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
 
               string ans;
               cout << "! " << ans << endl;
-              cout << flush;
             #ifdef DEBUG
               cout << "query count: " << responses.size() << endl;
               cout << "query results:" << endl;
