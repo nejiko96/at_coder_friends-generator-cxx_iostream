@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
     'changelog_uri' => spec.homepage + '/blob/master/CHANGELOG.md'
   }
 
-  spec.add_dependency 'at_coder_friends', '~> 0.6.5'
+  spec.add_dependency 'at_coder_friends', '~> 0.6.6'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'rake', '~> 13.0'
