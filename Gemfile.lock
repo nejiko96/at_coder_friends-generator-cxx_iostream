@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    at_coder_friends-generator-cxx_iostream (0.1.0)
+    at_coder_friends-generator-cxx_iostream (0.1.1)
       at_coder_friends (~> 0.6.6)
 
 GEM
