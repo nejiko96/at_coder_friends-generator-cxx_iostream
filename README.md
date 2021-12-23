@@ -1,3 +1,9 @@
+[![Gem Version](https://badge.fury.io/rb/at_coder_friends-generator-cxx_iostream.svg)](https://badge.fury.io/rb/at_coder_friends-generator-cxx_iostream)
+![Gem](https://img.shields.io/gem/dt/at_coder_friends-generator-cxx_iostream)
+[![Ruby](https://github.com/nejiko96/at_coder_friends-generator-cxx_iostream/actions/workflows/ruby.yml/badge.svg)](https://github.com/nejiko96/at_coder_friends-generator-cxx_iostream/actions/workflows/ruby.yml)
+[![Maintainability](https://api.codeclimate.com/v1/badges/d09d6944c51982d660cd/maintainability)](https://codeclimate.com/github/nejiko96/at_coder_friends-generator-cxx_iostream/maintainability)
+![GitHub](https://img.shields.io/github/license/nejiko96/at_coder_friends-generator-cxx_iostream)
+
 # AtCoderFriends::Generator::CxxIostream
 
 C++(iostream) source generator for [AtCoderFriends](https://github.com/nejiko96/at_coder_friends).  
