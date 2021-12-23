@@ -1,6 +1,8 @@
 # Change log
 
 ## master (unreleased)
+### Deleted
+- drop Ruby2.4 from target version.
 
 ## 0.1.1 (2020-12-20)
 ### Deleted

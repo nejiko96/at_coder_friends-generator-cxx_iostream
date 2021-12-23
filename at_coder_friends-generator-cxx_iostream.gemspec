@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.4.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
 
   spec.metadata = {
     'homepage_uri' => spec.homepage,
@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
     'changelog_uri' => spec.homepage + '/blob/master/CHANGELOG.md'
   }
 
-  spec.add_dependency 'at_coder_friends', '~> 0.6.6'
+  spec.add_dependency 'at_coder_friends', '~> 0.6.8'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'rake', '~> 13.0'
