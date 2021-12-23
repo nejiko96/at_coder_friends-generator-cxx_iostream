@@ -121,7 +121,7 @@ module AtCoderFriends
       def get_delim_decl(inpdef)
         return nil if inpdef.delim.empty?
 
-        CxxDecl.new('char',  'delim', nil)
+        CxxDecl.new('char', 'delim', nil)
       end
     end
 
@@ -243,7 +243,7 @@ module AtCoderFriends
       def gen_global_decls(inpdefs = pbm.formats)
         fnc = cfg['use_global'] ? :decl : nil
         inpdefs
-          .map { |inpdef| fnc && gen_decl(inpdef, fnc) || [] }
+          .map { |inpdef| (fnc && gen_decl(inpdef, fnc)) || [] }
           .flatten
           .compact
       end
