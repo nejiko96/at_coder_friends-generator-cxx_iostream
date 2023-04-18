@@ -1,14 +1,23 @@
 // <%= pbm.url %>
 
-#define _GLIBCXX_DEBUG
 #include <bits/stdc++.h>
+#include <atcoder/all>
 using namespace std;
+using namespace atcoder;
 
 <% if pbm.options.interactive -%>
 #define DEBUG
 <% end -%>
 #define REP(i,n)   for(int i=0; i<(int)(n); i++)
 #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+#if ONLINE_JUDGE
+  #define DUMP(a)
+  #define DUMP2D(b)
+#else
+  #define _GLIBCXX_DEBUG
+  #define DUMP(a) REP(_i, a.size()) cout << a[_i] << (_i + 1 == a.size() ? "\n" : " ")
+  #define DUMP2D(b) REP(_j, b.size()) DUMP(b[_j]); cout << endl
+#endif
 
 <% if pbm.options.interactive -%>
 //------------------------------------------------------------------------------

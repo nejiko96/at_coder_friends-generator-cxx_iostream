@@ -1,6 +1,12 @@
 # Change log
 
 ## master (unreleased)
+### Added
+- add Ruby3.2 to target version.
+### Changed
+- add ACL header to template
+### Deleted
+- drop Ruby2.5 from target version.
 
 ## 0.1.2 (2021-12-25)
 ### Deleted
