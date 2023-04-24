@@ -1,0 +1,93 @@
+constant:
+  value_print: <%= value.sub(/\b10\^/, '1e').sub(/\b2\^/, '1<<').gsub(',', "'") %>
+  max: const int <%= name.upcase %>_MAX = <%= value_print %>;
+  mod: const int MOD = <%= value_print %>;
+declaration:
+  type:
+    number: int
+    decimal: double
+    string: string
+    char: string
+  delim_decl: |
+    <% unless delim.empty? -%>
+    char delim;
+    <% end -%>
+  decl_line:
+    single: <%= type %> <%= v %>;
+    multi: <%= type %> <%= vs.join(', ') %>;
+    array: vector<<%= type %>> <%= v %>;
+    jagged_array: vector<vector<<%= type %>>> <%= v %>;
+    matrix: vector<vector<<%= type %>>> <%= v %>;
+  decl_body:
+    single: <%= decl_line %>
+    multi: |
+      <% vars.each do |var| -%>
+      <%= var.decl_line %>
+      <% end -%>
+    combi: <% components.each do |cmp| %><%= cmp.decl_body %><% end %>
+  decl: <%= decl_body %><%= delim_decl %>
+  alloc_line:
+    single: ''
+    multi: ''
+    array: <%= v %> = vector<<%= type %>>(<%= sz %>);
+    jagged_array: <%= v %> = vector<vector<<%= type %>>>(<%= sz1 %>);
+    matrix: <%= v %> = vector<vector<<%= type %>>>(<%= sz1 %>, vector<<%= type %>>(<%= sz2 %>));
+  alloc:
+    single: <%= alloc_line %>
+    multi: |
+      <% vars.each do |var| -%>
+      <%= var.alloc_line %>
+      <% end -%>
+    combi: <% components.each do |cmp| %><%= cmp.alloc %><% end %>
+  decl_alloc_line:
+    single: <%= type %> <%= v %>;
+    multi: <%= type %> <%= vs.join(', ') %>;
+    array: vector<<%= type %>> <%= v %>(<%= sz %>);
+    jagged_array: vector<vector<<%= type %>>> <%= v %>(<%= sz1 %>);
+    matrix: vector<vector<<%= type %>>> <%= v %>(<%= sz1 %>, vector<<%= type %>>(<%= sz2 %>));
+  decl_alloc_body:
+    single: <%= decl_alloc_line %>
+    multi: |
+      <% vars.each do |var| -%>
+      <%= var.decl_alloc_line %>
+      <% end -%>
+    combi: <% components.each do |cmp| %><%= cmp.decl_alloc_body %><% end %>
+  decl_alloc: <%= decl_alloc_body %><%= delim_decl %>
+input:
+  dim_type: '<%= size.size - (item == :char ? 1 : 0) %>_dim'
+  item_address:
+    0_dim: <%= v %>
+    1_dim: <%= v %>[i]
+    2_dim: <%= v %>[i][j]
+  sep: <% if delim.empty? %> >> <% else %> >> delim >> <% end %>
+  line_address: <%= vars.map { |var| var.item_address }.join(sep) %>
+  input_type: <% if components %><%= container.to_s %><% else %>plain<% end %>
+  sz2_body: <%= sz2.split('_')[0] %>
+  main:
+    plain:
+      0_dim: cin >> <%= line_address %>;
+      1_dim: REP(i, <%= sz1 %>) cin >> <%= line_address %>;
+      2_dim: REP(i, <%= sz1 %>) REP(j, <%= sz2 %>) cin >> <%= line_address %>;
+    varray_matrix:
+      1_dim: |
+        REP(i, <%= sz1 %>) {
+          cin >> <%= components[0].line_address %>;
+          cin >> <%= components[1].line_address %>;
+        }
+      2_dim: |
+        REP(i, <%= sz1 %>) {
+          cin >> <%= components[0].line_address %>;
+          <%= vs[-1] %>[i].resize(<%= sz2_body %>[i]);
+          REP(j, <%= sz2_body %>[i]) cin >> <%= components[1].line_address %>;
+        }
+    matrix_varray:
+      1_dim: |
+        REP(i, <%= sz1 %>) {
+          cin >> <%= components[0].line_address %>;
+          cin >> <%= components[1].line_address %>;
+        }
+      2_dim: |
+        REP(i, <%= sz1 %>) {
+          REP(j, <%= sz2_body %>) cin >> <%= components[0].line_address %>;
+          cin >> <%= components[1].line_address %>;
+        }
