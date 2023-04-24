@@ -5,232 +5,114 @@ require 'at_coder_friends/generator/cxx_iostream/version'
 
 module AtCoderFriends
   module Generator
-    ITEM_TBL = {
-      number: { type: 'int' },
-      decimal: { type: 'double' },
-      string: { type: 'string' },
-      char: { type: 'string', reduce: true }
-    }.tap { |h| h.default = { type: 'int' } }
+    # C++ variable declaration generator
+    class CxxIostreamDeclFragment < InputFormatFragment
+      attr_accessor :root_container
 
-    # generates C++ constants
-    module CxxIostreamConstGen
-      def gen_const(c)
-        v = cnv_const_value(c.value)
-        if c.type == :max
-          "const int #{c.name.upcase}_MAX = #{v};"
-        else
-          "const int MOD = #{v};"
-        end
+      def generate(func)
+        send(func)
       end
 
-      def cnv_const_value(v)
-        v
-          .sub(/\b10\^/, '1e')
-          .sub(/\b2\^/, '1<<')
-          .gsub(',', "'")
-      end
-    end
-
-    # generates C++ variable declarations
-    module CxxIostreamDeclGen
-      CxxDecl = Struct.new(:type, :name, :initializer) do
-        def format(fnc)
-          case fnc
-          when :decl
-            "#{type} #{name};"
-          when :alloc
-            initializer && "#{name} = #{type}#{initializer};"
-          when :decl_alloc
-            "#{type} #{name}#{initializer};"
-          end
-        end
+      def decl_body
+        render('decl_body', vertical_type)
       end
 
-      def gen_decl(inpdef, fnc)
-        decls =
-          (inpdef.components || [inpdef])
-          .map { |cmp| gen_plain_decl(inpdef, cmp) }
-        decls
-          .push(get_delim_decl(inpdef))
-          .flatten
-          .map { |decl| decl&.format(fnc) }
-          .compact
+      def decl_line
+        render('decl_line', horizontal_type)
       end
 
-      def gen_plain_decl(parent, inpdef)
-        case inpdef.container
+      def alloc
+        render('alloc', vertical_type)
+      end
+
+      def alloc_line
+        render('alloc_line', horizontal_type)
+      end
+
+      def decl_alloc_body
+        render('decl_alloc_body', vertical_type)
+      end
+
+      def decl_alloc_line
+        render('decl_alloc_line', horizontal_type)
+      end
+
+      def type
+        render('type', item.to_s)
+      end
+
+      def vertical_type
+        return 'combi' if components
+
+        case container
         when :single
-          gen_single_decl(inpdef)
+          vars.map(&:item).uniq.size == 1 ? 'single' : 'multi'
         when :harray
-          gen_harray_decl(inpdef)
-        when :varray
-          gen_varray_decl(inpdef)
-        when :matrix, :vmatrix, :hmatrix
-          gen_matrix_decl(parent, inpdef)
+          'single'
+        else # :varray. :matrix, :vmatrix, :hmatrix
+          'multi'
         end
       end
 
-      def gen_single_decl(inpdef)
-        names, cols = inpdef.vars.transpose
-        if cols.uniq.size == 1
-          CxxDecl.new(ITEM_TBL[cols[0]][:type], names.join(', '), nil)
-        else
-          inpdef.vars.map do |name, item|
-            CxxDecl.new(ITEM_TBL[item][:type], name, nil)
+      def horizontal_type
+        case container
+        when :single
+          vars.map(&:item).uniq.size == 1 ? 'multi' : 'single'
+        when :harray
+          item == :char ? 'single' : 'array'
+        when :varray
+          'array'
+        else # :matrix, :vmatrix, :hmatrix
+          if item == :char
+            'array'
+          elsif root_container == :varray_matrix
+            'jagged_array'
+          else
+            'matrix'
           end
         end
       end
 
-      def gen_harray_decl(inpdef)
-        type, reduce = ITEM_TBL[inpdef.item].values_at(:type, :reduce)
-        name = inpdef.names[0]
-        sz = inpdef.size[0]
-        if reduce
-          CxxDecl.new(type, name, nil)
-        else
-          CxxDecl.new("vector<#{type}>", name, "(#{sz})")
+      def vars
+        @vars ||= super&.map do |cmp|
+          cmp.tap do |c|
+            c.root_container = root_container
+          end
         end
       end
 
-      def gen_varray_decl(inpdef)
-        sz = inpdef.size[0]
-        inpdef.vars.map do |name, item|
-          type = ITEM_TBL[item][:type]
-          CxxDecl.new("vector<#{type}>", name, "(#{sz})")
+      def components
+        @components ||= super&.map do |cmp|
+          cmp.tap do |c|
+            c.root_container = container
+          end
         end
-      end
-
-      def gen_matrix_decl(parent, inpdef)
-        sz1, sz2 = inpdef.size
-        inpdef.vars.map do |name, item|
-          type, reduce = ITEM_TBL[item].values_at(:type, :reduce)
-          ctype = reduce ? "vector<#{type}>" : "vector<vector<#{type}>>"
-          initializer = (
-            if reduce
-              "(#{sz1})"
-            elsif parent.container == :varray_matrix # jagged array
-              "(#{sz1})"
-            else
-              "(#{sz1}, vector<#{type}>(#{sz2}))"
-            end
-          )
-          CxxDecl.new(ctype, name, initializer)
-        end
-      end
-
-      def get_delim_decl(inpdef)
-        return nil if inpdef.delim.empty?
-
-        CxxDecl.new('char', 'delim', nil)
       end
     end
 
-    # generates C++(iostream) input source
-    module CxxIostreamInputGen
-      INPUT_FMTS = [
-        ['cin >> %<addr>s;', '%<v>s'],
-        ['REP(i, %<sz1>s) cin >> %<addr>s;', '%<v>s[i]'],
-        ['REP(i, %<sz1>s) REP(j, %<sz2>s) cin >> %<addr>s;', '%<v>s[i][j]']
-      ].freeze
-
-      INPUT_FMTS_CMB = {
-        varray_matrix:
-          [
-            [
-              <<~TEXT,
-                REP(i, %<sz1>s) {
-                  cin >> %<addr1>s;
-                  cin >> %<addr2>s;
-                }
-              TEXT
-              '%<v>s[i]',
-              '%<v>s[i]'
-            ],
-            [
-              <<~TEXT,
-                REP(i, %<sz1>s) {
-                  cin >> %<addr1>s;
-                  %<v2>s[i].resize(%<sz2>s[i]);
-                  REP(j, %<sz2>s[i]) cin >> %<addr2>s;
-                }
-              TEXT
-              '%<v>s[i]',
-              '%<v>s[i][j]'
-            ]
-          ],
-        matrix_varray:
-          [
-            [
-              <<~TEXT,
-                REP(i, %<sz1>s) {
-                  cin >> %<addr1>s;
-                  cin >> %<addr2>s;
-                }
-              TEXT
-              '%<v>s[i]',
-              '%<v>s[i]'
-            ],
-            [
-              <<~TEXT,
-                REP(i, %<sz1>s) {
-                  REP(j, %<sz2>s) cin >> %<addr1>s;
-                  cin >> %<addr2>s;
-                }
-              TEXT
-              '%<v>s[i][j]',
-              '%<v>s[i]'
-            ]
-          ]
-      }.tap { |h| h.default = h[:varray_matrix] }
-
-      def gen_input(inpdef)
-        (inpdef.components ? gen_cmb_input(inpdef) : gen_plain_input(inpdef))
-          .split("\n")
+    # C++ variable input code generator
+    class CxxIostreamInputFragment < InputFormatFragment
+      def generate
+        main
       end
 
-      def gen_plain_input(inpdef)
-        dim = inpdef.size.size
-        dim -= 1 if ITEM_TBL[inpdef.item][:reduce]
-        inp_fmt, addr_fmt = INPUT_FMTS[dim] || INPUT_FMTS[0]
-        sz1, sz2 = inpdef.size
-        addr = edit_addr(inpdef, addr_fmt)
-        format(inp_fmt, sz1: sz1, sz2: sz2, addr: addr)
+      def main
+        render('main', input_type, dim_type)
       end
 
-      def gen_cmb_input(inpdef)
-        dim = ITEM_TBL[inpdef.item][:reduce] ? 0 : 1
-        inp_fmt, *addr_fmts = INPUT_FMTS_CMB.dig(inpdef.container, dim)
-        sz1, sz2 = inpdef.size
-        addr1, addr2 = inpdef.components.zip(addr_fmts).map do |cmp, addr_fmt|
-          edit_addr(cmp, addr_fmt)
-        end
-        format(
-          inp_fmt,
-          v2: inpdef.names[-1], # jagged array name
-          sz1: sz1,
-          sz2: sz2.split('_')[0],
-          addr1: addr1,
-          addr2: addr2
-        )
-      end
-
-      def edit_addr(inpdef, addr_fmt)
-        sep = inpdef.delim.empty? ? ' >> ' : ' >> delim >> '
-        inpdef.names.map { |v| format(addr_fmt, v: v) }.join(sep)
+      def item_address
+        render('item_address', dim_type)
       end
     end
 
     # generates C++(iostream) source from problem description
     class CxxIostream < Base
       include CxxIostreamConstants
-      include CxxIostreamConstGen
-      include CxxIostreamDeclGen
-      include CxxIostreamInputGen
-
       ACF_HOME = File.realpath(File.join(__dir__, '..', '..', '..'))
       TMPL_DIR = File.join(ACF_HOME, 'templates')
       DEFAULT_TMPL = File.join(TMPL_DIR, 'cxx_iostream.cxx.erb')
-      ATTRS = Attributes.new(:cxx, DEFAULT_TMPL)
+      FRAGMENTS = File.join(TMPL_DIR, 'cxx_iostream_fragments.yml')
+      ATTRS = Attributes.new(:cxx, DEFAULT_TMPL, FRAGMENTS)
 
       def attrs
         ATTRS
@@ -240,10 +122,17 @@ module AtCoderFriends
         constants.map { |c| gen_const(c) }
       end
 
+      def gen_const(c)
+        ConstFragment.new(c, fragments['constant']).generate
+      end
+
       def gen_global_decls(inpdefs = pbm.formats)
-        fnc = cfg['use_global'] ? :decl : nil
+        return [] unless cfg['use_global']
+
         inpdefs
-          .map { |inpdef| (fnc && gen_decl(inpdef, fnc)) || [] }
+          .map do |inpdef|
+            gen_decl(inpdef, :decl).split("\n")
+          end
           .flatten
           .compact
       end
@@ -251,9 +140,22 @@ module AtCoderFriends
       def gen_local_decls(inpdefs = pbm.formats)
         fnc = cfg['use_global'] ? :alloc : :decl_alloc
         inpdefs
-          .map { |inpdef| [gen_decl(inpdef, fnc), gen_input(inpdef)] }
+          .map do |inpdef|
+            [
+              gen_decl(inpdef, fnc).split("\n"),
+              gen_input(inpdef).split("\n")
+            ]
+          end
           .flatten
           .compact
+      end
+
+      def gen_decl(inpdef, func)
+        CxxIostreamDeclFragment.new(inpdef, fragments['declaration']).generate(func)
+      end
+
+      def gen_input(inpdef)
+        CxxIostreamInputFragment.new(inpdef, fragments['input']).generate
       end
     end
   end

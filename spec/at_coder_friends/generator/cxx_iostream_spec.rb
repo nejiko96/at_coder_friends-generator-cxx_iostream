@@ -65,14 +65,14 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:container) { :single }
       let(:cols) { %i[number] }
       it 'generates decl' do
-        expect(subject).to match(['int A;'])
+        expect(subject).to eq('int A;')
       end
 
       context 'in declaration only mode' do
         let(:fnc) { :decl }
 
         it 'generates decl' do
-          expect(subject).to match(['int A;'])
+          expect(subject).to eq('int A;')
         end
       end
 
@@ -80,7 +80,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
         let(:fnc) { :alloc }
 
         it 'returns nothing' do
-          expect(subject).to match([])
+          expect(subject).to eq('')
         end
       end
     end
@@ -90,7 +90,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] * 2 }
       let(:names) { %w[A B] }
       it 'generates decl' do
-        expect(subject).to match(['int A, B;'])
+        expect(subject).to eq('int A, B;')
       end
     end
 
@@ -98,7 +98,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:container) { :single }
       let(:cols) { %i[decimal] }
       it 'generates decl' do
-        expect(subject).to match(['double A;'])
+        expect(subject).to eq('double A;')
       end
     end
 
@@ -106,7 +106,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:container) { :single }
       let(:cols) { %i[string] }
       it 'generates decl' do
-        expect(subject).to match(['string A;'])
+        expect(subject).to eq('string A;')
       end
     end
 
@@ -115,13 +115,35 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number decimal string] }
       let(:names) { %w[A B C] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'int A;',
-            'double B;',
-            'string C;'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            int A;
+            double B;
+            string C;
+          SRC
         )
+      end
+
+      context 'in declaration only mode' do
+        let(:fnc) { :decl }
+
+        it 'generates decl' do
+          expect(subject).to eq(
+            <<~SRC
+              int A;
+              double B;
+              string C;
+            SRC
+          )
+        end
+      end
+
+      context 'in allocation only mode' do
+        let(:fnc) { :alloc }
+
+        it 'returns nothing' do
+          expect(subject).to eq("\n\n\n")
+        end
       end
     end
 
@@ -130,14 +152,14 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(['vector<int> A(N);'])
+        expect(subject).to eq('vector<int> A(N);')
       end
 
       context 'in declaration only mode' do
         let(:fnc) { :decl }
 
         it 'omits initializer' do
-          expect(subject).to match(['vector<int> A;'])
+          expect(subject).to eq('vector<int> A;')
         end
       end
 
@@ -145,7 +167,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
         let(:fnc) { :alloc }
 
         it 'generates allocation code' do
-          expect(subject).to match(['A = vector<int>(N);'])
+          expect(subject).to eq('A = vector<int>(N);')
         end
       end
     end
@@ -155,7 +177,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] }
       let(:size) { %w[10] }
       it 'generates decl' do
-        expect(subject).to match(['vector<int> A(10);'])
+        expect(subject).to eq('vector<int> A(10);')
       end
     end
 
@@ -164,7 +186,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[decimal] }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(['vector<double> A(N);'])
+        expect(subject).to eq('vector<double> A(N);')
       end
     end
 
@@ -173,7 +195,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[string] }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(['vector<string> A(N);'])
+        expect(subject).to eq('vector<string> A(N);')
       end
     end
 
@@ -182,7 +204,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:item) { :char }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(['string A;'])
+        expect(subject).to eq('string A;')
       end
     end
 
@@ -192,12 +214,38 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B] }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<int> A(N);',
-            'vector<int> B(N);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<int> A(N);
+            vector<int> B(N);
+          SRC
         )
+      end
+
+      context 'in declaration only mode' do
+        let(:fnc) { :decl }
+
+        it 'omits initializer' do
+          expect(subject).to eq(
+            <<~SRC
+              vector<int> A;
+              vector<int> B;
+            SRC
+          )
+        end
+      end
+
+      context 'in allocation only mode' do
+        let(:fnc) { :alloc }
+
+        it 'generates allocation code' do
+          expect(subject).to eq(
+            <<~SRC
+              A = vector<int>(N);
+              B = vector<int>(N);
+            SRC
+          )
+        end
       end
     end
 
@@ -207,11 +255,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B] }
       let(:size) { %w[10] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<int> A(10);',
-            'vector<int> B(10);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<int> A(10);
+            vector<int> B(10);
+          SRC
         )
       end
     end
@@ -222,11 +270,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B] }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<double> A(N);',
-            'vector<double> B(N);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<double> A(N);
+            vector<double> B(N);
+          SRC
         )
       end
     end
@@ -237,11 +285,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B] }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<string> A(N);',
-            'vector<string> B(N);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<string> A(N);
+            vector<string> B(N);
+          SRC
         )
       end
     end
@@ -252,12 +300,12 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B C] }
       let(:size) { %w[N] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<int> A(N);',
-            'vector<double> B(N);',
-            'vector<string> C(N);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<int> A(N);
+            vector<double> B(N);
+            vector<string> C(N);
+          SRC
         )
       end
     end
@@ -267,7 +315,35 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] }
       let(:size) { %w[R C] }
       it 'generates decl' do
-        expect(subject).to match(['vector<vector<int>> A(R, vector<int>(C));'])
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<int>> A(R, vector<int>(C));
+          SRC
+        )
+      end
+
+      context 'in declaration only mode' do
+        let(:fnc) { :decl }
+
+        it 'omits initializer' do
+          expect(subject).to eq(
+            <<~SRC
+              vector<vector<int>> A;
+            SRC
+          )
+        end
+      end
+
+      context 'in allocation only mode' do
+        let(:fnc) { :alloc }
+
+        it 'generates allocation code' do
+          expect(subject).to eq(
+            <<~SRC
+              A = vector<vector<int>>(R, vector<int>(C));
+            SRC
+          )
+        end
       end
     end
 
@@ -276,8 +352,10 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] }
       let(:size) { %w[8 8] }
       it 'generates decl' do
-        expect(subject).to match(
-          ['vector<vector<int>> A(8, vector<int>(8));']
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<int>> A(8, vector<int>(8));
+          SRC
         )
       end
     end
@@ -287,8 +365,10 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[decimal] }
       let(:size) { %w[R C] }
       it 'generates decl' do
-        expect(subject).to match(
-          ['vector<vector<double>> A(R, vector<double>(C));']
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<double>> A(R, vector<double>(C));
+          SRC
         )
       end
     end
@@ -298,8 +378,10 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[string] }
       let(:size) { %w[R C] }
       it 'generates decl' do
-        expect(subject).to match(
-          ['vector<vector<string>> A(R, vector<string>(C));']
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<string>> A(R, vector<string>(C));
+          SRC
         )
       end
     end
@@ -309,7 +391,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:item) { :char }
       let(:size) { %w[R C] }
       it 'generates decl' do
-        expect(subject).to match(['vector<string> A(R);'])
+        expect(subject).to eq(
+          <<~SRC
+            vector<string> A(R);
+          SRC
+        )
       end
     end
 
@@ -319,12 +405,38 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[K A] }
       let(:size) { %w[N K_N] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<int> K(N);',
-            'vector<vector<int>> A(N);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<int> K(N);
+            vector<vector<int>> A(N);
+          SRC
         )
+      end
+
+      context 'in declaration only mode' do
+        let(:fnc) { :decl }
+
+        it 'omits initializer' do
+          expect(subject).to eq(
+            <<~SRC
+              vector<int> K;
+              vector<vector<int>> A;
+            SRC
+          )
+        end
+      end
+
+      context 'in allocation only mode' do
+        let(:fnc) { :alloc }
+
+        it 'generates allocation code' do
+          expect(subject).to eq(
+            <<~SRC
+              K = vector<int>(N);
+              A = vector<vector<int>>(N);
+            SRC
+          )
+        end
       end
     end
 
@@ -335,11 +447,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[K p] }
       let(:size) { %w[Q 26] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<int> K(Q);',
-            'vector<string> p(Q);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<int> K(Q);
+            vector<string> p(Q);
+          SRC
         )
       end
     end
@@ -350,11 +462,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[city cost] }
       let(:size) { %w[M 2] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<vector<int>> city(M, vector<int>(2));',
-            'vector<int> cost(M);'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<int>> city(M, vector<int>(2));
+            vector<int> cost(M);
+          SRC
         )
       end
     end
@@ -365,11 +477,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[idol p] }
       let(:size) { %w[1 C_1] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<vector<int>> idol(1, vector<int>(C_1));',
-            'vector<vector<int>> p(1, vector<int>(C_1));'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<int>> idol(1, vector<int>(C_1));
+            vector<vector<int>> p(1, vector<int>(C_1));
+          SRC
         )
       end
     end
@@ -380,12 +492,12 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B C] }
       let(:size) { %w[N M] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<vector<int>> A(N, vector<int>(M));',
-            'vector<vector<double>> B(N, vector<double>(M));',
-            'vector<vector<string>> C(N, vector<string>(M));'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<int>> A(N, vector<int>(M));
+            vector<vector<double>> B(N, vector<double>(M));
+            vector<vector<string>> C(N, vector<string>(M));
+          SRC
         )
       end
     end
@@ -396,11 +508,11 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[x y] }
       let(:size) { %w[Q 2] }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<vector<int>> x(Q, vector<int>(2));',
-            'vector<vector<int>> y(Q, vector<int>(2));'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<vector<int>> x(Q, vector<int>(2));
+            vector<vector<int>> y(Q, vector<int>(2));
+          SRC
         )
       end
     end
@@ -412,13 +524,40 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:size) { %w[N] }
       let(:delim) { '-' }
       it 'generates decl' do
-        expect(subject).to match(
-          [
-            'vector<int> S(N);',
-            'vector<int> E(N);',
-            'char delim;'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            vector<int> S(N);
+            vector<int> E(N);
+            char delim;
+          SRC
         )
+      end
+
+      context 'in declaration only mode' do
+        let(:fnc) { :decl }
+
+        it 'omits initializer' do
+          expect(subject).to eq(
+            <<~SRC
+              vector<int> S;
+              vector<int> E;
+              char delim;
+            SRC
+          )
+        end
+      end
+
+      context 'in allocation only mode' do
+        let(:fnc) { :alloc }
+
+        it 'generates allocation code' do
+          expect(subject).to eq(
+            <<~SRC
+              S = vector<int>(N);
+              E = vector<int>(N);
+            SRC
+          )
+        end
       end
     end
   end
@@ -445,7 +584,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:container) { :single }
       let(:cols) { %i[number] }
       it 'generates input code' do
-        expect(subject).to match(['cin >> A;'])
+        expect(subject).to eq('cin >> A;')
       end
     end
 
@@ -454,7 +593,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] * 2 }
       let(:names) { %w[A B] }
       it 'generates input code' do
-        expect(subject).to match(['cin >> A >> B;'])
+        expect(subject).to eq('cin >> A >> B;')
       end
     end
 
@@ -462,7 +601,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:container) { :single }
       let(:cols) { %i[decimal] }
       it 'generates input code' do
-        expect(subject).to match(['cin >> A;'])
+        expect(subject).to eq('cin >> A;')
       end
     end
 
@@ -470,7 +609,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:container) { :single }
       let(:cols) { %i[string] }
       it 'generates input code' do
-        expect(subject).to match(['cin >> A;'])
+        expect(subject).to eq('cin >> A;')
       end
     end
 
@@ -479,7 +618,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number decimal string] }
       let(:names) { %w[A B C] }
       it 'generates input code' do
-        expect(subject).to match(['cin >> A >> B >> C;'])
+        expect(subject).to eq('cin >> A >> B >> C;')
       end
     end
 
@@ -488,7 +627,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, N) cin >> A[i];'])
+        expect(subject).to eq('REP(i, N) cin >> A[i];')
       end
     end
 
@@ -497,7 +636,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[decimal] }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, N) cin >> A[i];'])
+        expect(subject).to eq('REP(i, N) cin >> A[i];')
       end
     end
 
@@ -506,7 +645,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[string] }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, N) cin >> A[i];'])
+        expect(subject).to eq('REP(i, N) cin >> A[i];')
       end
     end
 
@@ -515,7 +654,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:item) { :char }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['cin >> A;'])
+        expect(subject).to eq('cin >> A;')
       end
     end
 
@@ -525,7 +664,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B] }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, N) cin >> A[i] >> B[i];'])
+        expect(subject).to eq('REP(i, N) cin >> A[i] >> B[i];')
       end
     end
 
@@ -535,7 +674,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B] }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, N) cin >> A[i] >> B[i];'])
+        expect(subject).to eq('REP(i, N) cin >> A[i] >> B[i];')
       end
     end
 
@@ -545,7 +684,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B] }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, N) cin >> A[i] >> B[i];'])
+        expect(subject).to eq('REP(i, N) cin >> A[i] >> B[i];')
       end
     end
 
@@ -555,7 +694,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[A B C] }
       let(:size) { %w[N] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, N) cin >> A[i] >> B[i] >> C[i];'])
+        expect(subject).to eq('REP(i, N) cin >> A[i] >> B[i] >> C[i];')
       end
     end
 
@@ -564,7 +703,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[number] }
       let(:size) { %w[R C] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, R) REP(j, C) cin >> A[i][j];'])
+        expect(subject).to eq('REP(i, R) REP(j, C) cin >> A[i][j];')
       end
     end
 
@@ -573,7 +712,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[decimal] }
       let(:size) { %w[R C] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, R) REP(j, C) cin >> A[i][j];'])
+        expect(subject).to eq('REP(i, R) REP(j, C) cin >> A[i][j];')
       end
     end
 
@@ -582,7 +721,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:cols) { %i[string] }
       let(:size) { %w[R C] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, R) REP(j, C) cin >> A[i][j];'])
+        expect(subject).to eq('REP(i, R) REP(j, C) cin >> A[i][j];')
       end
     end
 
@@ -591,7 +730,7 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:item) { :char }
       let(:size) { %w[R C] }
       it 'generates input code' do
-        expect(subject).to match(['REP(i, R) cin >> A[i];'])
+        expect(subject).to eq('REP(i, R) cin >> A[i];')
       end
     end
 
@@ -601,14 +740,14 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[K A] }
       let(:size) { %w[N K_N] }
       it 'generates input code' do
-        expect(subject).to match(
-          [
-            'REP(i, N) {',
-            '  cin >> K[i];',
-            '  A[i].resize(K[i]);',
-            '  REP(j, K[i]) cin >> A[i][j];',
-            '}'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            REP(i, N) {
+              cin >> K[i];
+              A[i].resize(K[i]);
+              REP(j, K[i]) cin >> A[i][j];
+            }
+          SRC
         )
       end
     end
@@ -620,13 +759,13 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[K p] }
       let(:size) { %w[Q 26] }
       it 'generates input code' do
-        expect(subject).to match(
-          [
-            'REP(i, Q) {',
-            '  cin >> K[i];',
-            '  cin >> p[i];',
-            '}'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            REP(i, Q) {
+              cin >> K[i];
+              cin >> p[i];
+            }
+          SRC
         )
       end
     end
@@ -637,13 +776,13 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[city cost] }
       let(:size) { %w[M 2] }
       it 'generates input code' do
-        expect(subject).to match(
-          [
-            'REP(i, M) {',
-            '  REP(j, 2) cin >> city[i][j];',
-            '  cin >> cost[i];',
-            '}'
-          ]
+        expect(subject).to eq(
+          <<~SRC
+            REP(i, M) {
+              REP(j, 2) cin >> city[i][j];
+              cin >> cost[i];
+            }
+          SRC
         )
       end
     end
@@ -654,8 +793,8 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[idol p] }
       let(:size) { %w[1 C_1] }
       it 'generates input code' do
-        expect(subject).to match(
-          ['REP(i, 1) REP(j, C_1) cin >> idol[i][j] >> p[i][j];']
+        expect(subject).to eq(
+          'REP(i, 1) REP(j, C_1) cin >> idol[i][j] >> p[i][j];'
         )
       end
     end
@@ -666,8 +805,8 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:names) { %w[x y] }
       let(:size) { %w[Q 2] }
       it 'generates input code' do
-        expect(subject).to match(
-          ['REP(i, Q) REP(j, 2) cin >> x[i][j] >> y[i][j];']
+        expect(subject).to eq(
+          'REP(i, Q) REP(j, 2) cin >> x[i][j] >> y[i][j];'
         )
       end
     end
@@ -679,10 +818,8 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
       let(:size) { %w[N] }
       let(:delim) { '-' }
       it 'generates input code' do
-        expect(subject).to match(
-          [
-            'REP(i, N) cin >> S[i] >> delim >> E[i];'
-          ]
+        expect(subject).to eq(
+          'REP(i, N) cin >> S[i] >> delim >> E[i];'
         )
       end
     end

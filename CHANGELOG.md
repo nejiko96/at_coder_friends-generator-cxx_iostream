@@ -5,6 +5,7 @@
 - add Ruby3.2 to target version.
 ### Changed
 - add ACL header to template
+- externalize code fragments to YAML
 ### Deleted
 - drop Ruby2.5 from target version.
 
