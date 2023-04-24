@@ -33,8 +33,9 @@ Add ```CxxIostream``` to ```generators``` setting in ```.at_coder_friends.yml```
 Following options are available  
 in ```generator_settings/CxxIostream``` section of ```.at_coder_friends.yml```:
 
-| Option | Description | Default |
-|---------|-------------|---------|
+| Setting | Description  | Default |
+|---------|--------------|---------|
+|file_ext |File extension|cxx      |
 |default_template|Source template file path|[/templates/cxx_iostream.cxx.erb](/templates/cxx_iostream.cxx.erb)|
 |use_global|if set to true, stores input data in global variables|nil|
 

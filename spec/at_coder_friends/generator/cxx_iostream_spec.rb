@@ -809,12 +809,21 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
           <<~SRC
             // https://atcoder.jp/contests/practice/tasks/practice_1
 
-            #define _GLIBCXX_DEBUG
             #include <bits/stdc++.h>
+            #include <atcoder/all>
             using namespace std;
+            using namespace atcoder;
 
             #define REP(i,n)   for(int i=0; i<(int)(n); i++)
             #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+            #if ONLINE_JUDGE
+              #define DUMP(a)
+              #define DUMP2D(b)
+            #else
+              #define _GLIBCXX_DEBUG
+              #define DUMP(a) REP(_i, a.size()) cout << a[_i] << (_i + 1 == a.size() ? "\\n" : " ")
+              #define DUMP2D(b) REP(_j, b.size()) DUMP(b[_j]); cout << endl
+            #endif
 
             const int N_MAX = 100000;
             const int M_MAX = 1e9;
@@ -846,12 +855,21 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
             <<~SRC
               // https://atcoder.jp/contests/practice/tasks/practice_1
 
-              #define _GLIBCXX_DEBUG
               #include <bits/stdc++.h>
+              #include <atcoder/all>
               using namespace std;
+              using namespace atcoder;
 
               #define REP(i,n)   for(int i=0; i<(int)(n); i++)
               #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+              #if ONLINE_JUDGE
+                #define DUMP(a)
+                #define DUMP2D(b)
+              #else
+                #define _GLIBCXX_DEBUG
+                #define DUMP(a) REP(_i, a.size()) cout << a[_i] << (_i + 1 == a.size() ? "\\n" : " ")
+                #define DUMP2D(b) REP(_j, b.size()) DUMP(b[_j]); cout << endl
+              #endif
 
               const int N_MAX = 100000;
               const int M_MAX = 1e9;
@@ -911,13 +929,22 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
           <<~SRC
             // https://atcoder.jp/contests/practice/tasks/practice_2
 
-            #define _GLIBCXX_DEBUG
             #include <bits/stdc++.h>
+            #include <atcoder/all>
             using namespace std;
+            using namespace atcoder;
 
             #define DEBUG
             #define REP(i,n)   for(int i=0; i<(int)(n); i++)
             #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+            #if ONLINE_JUDGE
+              #define DUMP(a)
+              #define DUMP2D(b)
+            #else
+              #define _GLIBCXX_DEBUG
+              #define DUMP(a) REP(_i, a.size()) cout << a[_i] << (_i + 1 == a.size() ? "\\n" : " ")
+              #define DUMP2D(b) REP(_j, b.size()) DUMP(b[_j]); cout << endl
+            #endif
 
             //------------------------------------------------------------------------------
             #ifdef DEBUG
@@ -989,12 +1016,21 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
           <<~SRC
             // https://atcoder.jp/contests/abc006/tasks/abc006_1
 
-            #define _GLIBCXX_DEBUG
             #include <bits/stdc++.h>
+            #include <atcoder/all>
             using namespace std;
+            using namespace atcoder;
 
             #define REP(i,n)   for(int i=0; i<(int)(n); i++)
             #define FOR(i,b,e) for(int i=(b); i<=(int)(e); i++)
+            #if ONLINE_JUDGE
+              #define DUMP(a)
+              #define DUMP2D(b)
+            #else
+              #define _GLIBCXX_DEBUG
+              #define DUMP(a) REP(_i, a.size()) cout << a[_i] << (_i + 1 == a.size() ? "\\n" : " ")
+              #define DUMP2D(b) REP(_j, b.size()) DUMP(b[_j]); cout << endl
+            #endif
 
             const int N_MAX = 9;
 

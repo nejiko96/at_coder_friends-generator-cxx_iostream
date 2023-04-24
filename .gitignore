@@ -12,3 +12,6 @@
 
 # rvm
 .ruby-version
+
+# Visual Studio Code local settings
+.vscode/
