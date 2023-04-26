@@ -110,9 +110,9 @@ module AtCoderFriends
       include CxxIostreamConstants
       ACF_HOME = File.realpath(File.join(__dir__, '..', '..', '..'))
       TMPL_DIR = File.join(ACF_HOME, 'templates')
-      DEFAULT_TMPL = File.join(TMPL_DIR, 'cxx_iostream.cxx.erb')
+      TEMPLATE = File.join(TMPL_DIR, 'cxx_iostream.cxx.erb')
       FRAGMENTS = File.join(TMPL_DIR, 'cxx_iostream_fragments.yml')
-      ATTRS = Attributes.new(:cxx, DEFAULT_TMPL, FRAGMENTS)
+      ATTRS = Attributes.new(:cxx, TEMPLATE, FRAGMENTS)
 
       def attrs
         ATTRS
