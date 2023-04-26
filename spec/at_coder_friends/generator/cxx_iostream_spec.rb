@@ -926,6 +926,12 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
             names: %w[A B C T],
             size: %w[M],
             cols: %i[number] * 4
+          ),
+          AtCoderFriends::Problem::InputFormat.new(
+            container: :varray_matrix,
+            names: %w[K A],
+            size: %w[N K_N],
+            cols: %i[number] * 2
           )
         ]
       end
@@ -976,6 +982,13 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
               vector<int> C(M);
               vector<int> T(M);
               REP(i, M) cin >> A[i] >> B[i] >> C[i] >> T[i];
+              vector<int> K(N);
+              vector<vector<int>> A(N);
+              REP(i, N) {
+                cin >> K[i];
+                A[i].resize(K[i]);
+                REP(j, K[i]) cin >> A[i][j];
+              }
 
               int ans = 0;
               cout << ans << endl;
@@ -1019,6 +1032,8 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
               vector<int> B;
               vector<int> C;
               vector<int> T;
+              vector<int> K;
+              vector<vector<int>> A;
 
               int main() {
                 cin >> N >> M;
@@ -1027,6 +1042,13 @@ RSpec.describe AtCoderFriends::Generator::CxxIostream do
                 C = vector<int>(M);
                 T = vector<int>(M);
                 REP(i, M) cin >> A[i] >> B[i] >> C[i] >> T[i];
+                K = vector<int>(N);
+                A = vector<vector<int>>(N);
+                REP(i, N) {
+                  cin >> K[i];
+                  A[i].resize(K[i]);
+                  REP(j, K[i]) cin >> A[i][j];
+                }
 
                 int ans = 0;
                 cout << ans << endl;
