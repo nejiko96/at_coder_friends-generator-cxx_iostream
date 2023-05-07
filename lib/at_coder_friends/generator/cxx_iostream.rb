@@ -33,6 +33,9 @@ module AtCoderFriends
     # generates C++(iostream) source from problem description
     class CxxIostream < Base
       include CxxIostreamConstants
+      include ConstFragmentMixin
+      include InputFragmentMixin
+
       ACF_HOME = File.realpath(File.join(__dir__, '..', '..', '..'))
       TMPL_DIR = File.join(ACF_HOME, 'templates')
       TEMPLATE = File.join(TMPL_DIR, 'cxx_iostream.cxx.erb')
@@ -41,14 +44,6 @@ module AtCoderFriends
 
       def attrs
         ATTRS
-      end
-
-      def gen_consts(constants = pbm.constants)
-        constants.map { |c| gen_const(c) }
-      end
-
-      def gen_const(c)
-        ConstFragment.new(c, fragments['constant']).generate
       end
 
       def gen_global_decls(inpdefs = pbm.formats)
@@ -73,10 +68,6 @@ module AtCoderFriends
 
       def gen_decl(inpdef, func)
         CxxIostreamDeclFragment.new(inpdef, fragments['declaration']).generate(func)
-      end
-
-      def gen_input(inpdef)
-        InputFormatFragment.new(inpdef, fragments['input']).generate
       end
     end
   end
