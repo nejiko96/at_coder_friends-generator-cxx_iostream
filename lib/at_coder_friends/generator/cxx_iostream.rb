@@ -10,73 +10,13 @@ module AtCoderFriends
       attr_accessor :root_container
 
       def generate(func)
-        send(func)
-      end
-
-      def decl_body
-        render('decl_body', vertical_type)
-      end
-
-      def decl_line
-        render('decl_line', horizontal_type)
-      end
-
-      def alloc
-        render('alloc', vertical_type)
-      end
-
-      def alloc_line
-        render('alloc_line', horizontal_type)
-      end
-
-      def decl_alloc_body
-        render('decl_alloc_body', vertical_type)
-      end
-
-      def decl_alloc_line
-        render('decl_alloc_line', horizontal_type)
-      end
-
-      def type
-        render('type', item.to_s)
-      end
-
-      def vertical_type
-        return 'combi' if components
-
-        case container
-        when :single
-          vars.map(&:item).uniq.size == 1 ? 'single' : 'multi'
-        when :harray
-          'single'
-        else # :varray. :matrix, :vmatrix, :hmatrix
-          'multi'
-        end
-      end
-
-      def horizontal_type
-        case container
-        when :single
-          vars.map(&:item).uniq.size == 1 ? 'multi' : 'single'
-        when :harray
-          item == :char ? 'single' : 'array'
-        when :varray
-          'array'
-        else # :matrix, :vmatrix, :hmatrix
-          if item == :char
-            'array'
-          elsif root_container == :varray_matrix
-            'jagged_array'
-          else
-            'matrix'
-          end
-        end
+        render(func)
       end
 
       def vars
-        @vars ||= super&.map do |cmp|
-          cmp.tap do |c|
-            c.root_container = root_container
+        @vars ||= super.map do |var|
+          var.tap do |var|
+            var.root_container = root_container
           end
         end
       end
@@ -87,21 +27,6 @@ module AtCoderFriends
             c.root_container = container
           end
         end
-      end
-    end
-
-    # C++ variable input code generator
-    class CxxIostreamInputFragment < InputFormatFragment
-      def generate
-        main
-      end
-
-      def main
-        render('main', input_type, dim_type)
-      end
-
-      def item_address
-        render('item_address', dim_type)
       end
     end
 
@@ -134,20 +59,16 @@ module AtCoderFriends
             gen_decl(inpdef, :decl).split("\n")
           end
           .flatten
-          .compact
       end
 
       def gen_local_decls(inpdefs = pbm.formats)
         fnc = cfg['use_global'] ? :alloc : :decl_alloc
         inpdefs
           .map do |inpdef|
-            [
-              gen_decl(inpdef, fnc).split("\n"),
-              gen_input(inpdef).split("\n")
-            ]
+            gen_decl(inpdef, fnc).split("\n") +
+            gen_input(inpdef).split("\n")
           end
           .flatten
-          .compact
       end
 
       def gen_decl(inpdef, func)
@@ -155,7 +76,7 @@ module AtCoderFriends
       end
 
       def gen_input(inpdef)
-        CxxIostreamInputFragment.new(inpdef, fragments['input']).generate
+        InputFormatFragment.new(inpdef, fragments['input']).generate
       end
     end
   end
