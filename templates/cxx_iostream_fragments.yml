@@ -4,6 +4,7 @@ constant:
   mod: const int MOD = <%= value_print %>;
 declaration:
   type:
+    __key: [item]
     number: int
     decimal: double
     string: string
@@ -12,13 +13,61 @@ declaration:
     <% unless delim.empty? -%>
     char delim;
     <% end -%>
+  horizontal_type: |
+    <%
+      case container
+      when :single
+        if vars.map(&:item).uniq.size == 1
+          %>multi<%
+        else
+          %>single<%
+        end
+      when :harray
+        if item == :char
+          %>single<%
+        else
+          %>array<%
+        end
+      when :varray
+        %>array<%
+      else # :matrix, :vmatrix, :hmatrix
+        if item == :char
+          %>array<%
+        elsif root_container == :varray_matrix
+          %>jagged_array<%
+        else
+          %>matrix<%
+        end
+      end
+    -%>
+  vertical_type: |
+    <%
+      if components
+        %>combi<%
+      else
+        case container
+        when :single
+          if vars.map(&:item).uniq.size == 1
+            %>single<%
+          else
+            %>multi<%
+          end
+        when :harray
+          %>single<%
+        else # :varray. :matrix, :vmatrix, :hmatrix
+          %>multi<%
+        end
+      end
+    -%>
   decl_line:
+    __key: [horizontal_type]
     single: <%= type %> <%= v %>;
     multi: <%= type %> <%= vs.join(', ') %>;
     array: vector<<%= type %>> <%= v %>;
     jagged_array: vector<vector<<%= type %>>> <%= v %>;
     matrix: vector<vector<<%= type %>>> <%= v %>;
   decl_body:
+    __key: [vertical_type]
     single: <%= decl_line %>
     multi: |
       <% vars.each do |var| -%>
@@ -27,12 +76,14 @@ declaration:
     combi: <% components.each do |cmp| %><%= cmp.decl_body %><% end %>
   decl: <%= decl_body %><%= delim_decl %>
   alloc_line:
+    __key: [horizontal_type]
     single: ''
     multi: ''
     array: <%= v %> = vector<<%= type %>>(<%= sz %>);
     jagged_array: <%= v %> = vector<vector<<%= type %>>>(<%= sz1 %>);
     matrix: <%= v %> = vector<vector<<%= type %>>>(<%= sz1 %>, vector<<%= type %>>(<%= sz2 %>));
   alloc:
+    __key: [vertical_type]
     single: <%= alloc_line %>
     multi: |
       <% vars.each do |var| -%>
@@ -40,12 +91,14 @@ declaration:
       <% end -%>
     combi: <% components.each do |cmp| %><%= cmp.alloc %><% end %>
   decl_alloc_line:
+    __key: [horizontal_type]
     single: <%= type %> <%= v %>;
     multi: <%= type %> <%= vs.join(', ') %>;
     array: vector<<%= type %>> <%= v %>(<%= sz %>);
     jagged_array: vector<vector<<%= type %>>> <%= v %>(<%= sz1 %>);
     matrix: vector<vector<<%= type %>>> <%= v %>(<%= sz1 %>, vector<<%= type %>>(<%= sz2 %>));
   decl_alloc_body:
+    __key: [vertical_type]
     single: <%= decl_alloc_line %>
     multi: |
       <% vars.each do |var| -%>
@@ -56,6 +109,7 @@ declaration:
 input:
   dim_type: '<%= size.size - (item == :char ? 1 : 0) %>_dim'
   item_address:
+    __key: [dim_type]
     0_dim: <%= v %>
     1_dim: <%= v %>[i]
     2_dim: <%= v %>[i][j]
@@ -64,6 +118,7 @@ input:
   input_type: <% if components %><%= container.to_s %><% else %>plain<% end %>
   sz2_body: <%= sz2.split('_')[0] %>
   main:
+    __key: [input_type, dim_type]
     plain:
       0_dim: cin >> <%= line_address %>;
       1_dim: REP(i, <%= sz1 %>) cin >> <%= line_address %>;
