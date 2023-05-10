@@ -9,7 +9,7 @@ declaration:
     decimal: double
     string: string
     char: string
-  delim_decl: |
+  delim_block: |
     <% unless delim.empty? -%>
     char delim;
     <% end -%>
@@ -66,15 +66,15 @@ declaration:
     array: vector<<%= type %>> <%= v %>;
     jagged_array: vector<vector<<%= type %>>> <%= v %>;
     matrix: vector<vector<<%= type %>>> <%= v %>;
-  decl_body:
+  decl_block:
     __key: [vertical_type]
     single: <%= decl_line %>
     multi: |
       <% vars.each do |var| -%>
       <%= var.decl_line %>
       <% end -%>
-    combi: <% components.each do |cmp| %><%= cmp.decl_body %><% end %>
-  decl: <%= decl_body %><%= delim_decl %>
+    combi: <% components.each do |cmp| %><%= cmp.decl_block %><% end %>
+  decl: <%= decl_block %><%= delim_block %>
   alloc_line:
     __key: [horizontal_type]
     single: ''
@@ -97,15 +97,15 @@ declaration:
     array: vector<<%= type %>> <%= v %>(<%= sz %>);
     jagged_array: vector<vector<<%= type %>>> <%= v %>(<%= sz1 %>);
     matrix: vector<vector<<%= type %>>> <%= v %>(<%= sz1 %>, vector<<%= type %>>(<%= sz2 %>));
-  decl_alloc_body:
+  decl_alloc_block:
     __key: [vertical_type]
     single: <%= decl_alloc_line %>
     multi: |
       <% vars.each do |var| -%>
       <%= var.decl_alloc_line %>
       <% end -%>
-    combi: <% components.each do |cmp| %><%= cmp.decl_alloc_body %><% end %>
-  decl_alloc: <%= decl_alloc_body %><%= delim_decl %>
+    combi: <% components.each do |cmp| %><%= cmp.decl_alloc_block %><% end %>
+  decl_alloc: <%= decl_alloc_block %><%= delim_block %>
 input:
   dim_type: '<%= size.size - (item == :char ? 1 : 0) %>_dim'
   item_address:
