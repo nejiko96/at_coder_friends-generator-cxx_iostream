@@ -26,20 +26,21 @@ Or install it yourself as:
 
 ## Configuration
 
-Add ```CxxIostream``` to ```generators``` setting in ```.at_coder_friends.yml```
+Add `CxxIostream` to `generators` setting in `.at_coder_friends.yml`
 
 ## Generator Options
 
 Following options are available  
-in ```generator_settings/CxxIostream``` section of ```.at_coder_friends.yml```:
+in `generator_settings/CxxIostream` section of `.at_coder_friends.yml`:
 
-| Option  | Description  | Default |
-|---------|--------------|---------|
-|file_ext |File extension|cxx       |
-|template (formerly default_template)|Source template file path|[/templates/cxx_iostream.cxx.erb](/templates/cxx_iostream.cxx.erb)|
-|use_global|if set to true, stores input data in global variables|nil|
+| Option     | Description    | Default |
+| ---------- | -------------- | ------- |
+| file_ext   | File extension | cxx     |
+| template<br>(formerly default_template) | Code template file path | [cxx_iostream.cxx.erb](/templates/cxx_iostream.cxx.erb) |
+| fragments  | Code fragments file path | [cxx_iostream_fragments.yml](/templates/cxx_iostream_fragments.yml) |
+| use_global | if set to true, stores input data in global variables | nil |
 
-## ```.at_coder_friends.yml``` example
+## `.at_coder_friends.yml` example
   ```YAML
   generators:
     - CxxIoStream
