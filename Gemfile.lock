@@ -1,15 +1,15 @@
 PATH
   remote: .
   specs:
-    at_coder_friends-generator-cxx_iostream (0.1.2)
-      at_coder_friends (~> 0.6.8)
+    at_coder_friends-generator-cxx_iostream (0.2.0)
+      at_coder_friends (~> 0.7.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
-    at_coder_friends (0.6.9)
+    at_coder_friends (0.7.0)
       colorize (~> 0.8.1)
       launchy (>= 2.4.3)
       mechanize (~> 2.0)

@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
     'rubygems_mfa_required' => 'true'
   }
 
-  spec.add_dependency 'at_coder_friends', '~> 0.6.8'
+  spec.add_dependency 'at_coder_friends', '~> 0.7.0'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'rake', '~> 13.0'

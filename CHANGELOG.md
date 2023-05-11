@@ -1,6 +1,8 @@
 # Change log
 
 ## master (unreleased)
+
+## 0.2.0 (2023-05-12)
 ### Added
 - add Ruby3.2 to target version.
 ### Changed
